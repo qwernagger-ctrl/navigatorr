@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Местоположение + карта</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+  #map { height: 400px; margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<button id="btn">Определить местоположение</button>
+<pre id="out"></pre>
+<div id="map"></div>
+
+<script>
+const out = document.getElementById('out');
+const map = L.map('map').setView([0, 0], 2);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+let marker;
+
+document.getElementById('btn').onclick = () => {
+  out.textContent = 'Пытаюсь получить точные координаты...';
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+      out.textContent = `Точные координаты:\nlat: ${lat}\nlon: ${lon}`;
+      show(lat, lon);
+    },
+    () => {
+      out.textContent = 'Разрешение отклонено, пробую по IP...';
+      ipFallback();
+    }
+  );
+};
+
+async function ipFallback() {
+  const r = await fetch('https://ipapi.co/json/');
+  const j = await r.json();
+  const lat = j.latitude, lon = j.longitude;
+  out.textContent = `По IP (приблизительно):\nlat: ${lat}\nlon: ${lon}`;
+  show(lat, lon);
+}
+
+function show(lat, lon) {
+  map.setView([lat, lon], 14);
+  if (marker) marker.setLatLng([lat, lon]);
+  else marker = L.marker([lat, lon]).addTo(map);
+}
+</script>
+
+</body>
+</html>
