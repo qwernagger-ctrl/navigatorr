@@ -1,0 +1,12 @@
+import requests
+
+# Отправляем запрос к сервису геолокации
+response = requests.get("http://ip-api.com/json/").json()
+
+# Выводим данные
+print("IP:", response["query"])
+print("Страна:", response["country"])
+print("Регион:", response["regionName"])
+print("Город:", response["city"])
+print("Провайдер:", response["isp"])
+print("Координаты:", response["lat"], response["lon"])
